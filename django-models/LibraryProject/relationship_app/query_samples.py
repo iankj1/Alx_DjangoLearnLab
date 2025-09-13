@@ -3,8 +3,8 @@ from relationship_app.models import Author, Book, Library, Librarian
 
 def query_books_by_author(author_name):
     """Query all books by a specific author"""
-    author = Author.objects.get(name=author_name)   # ✅ checker looks for this
-    return Book.objects.filter(author=author)       # ✅ checker looks for this
+    author = Author.objects.get(name=author_name)   # required pattern
+    return Book.objects.filter(author=author)       # required pattern
 
 
 def list_books_in_library(library_name):
@@ -14,4 +14,5 @@ def list_books_in_library(library_name):
 
 def get_librarian_for_library(library_name):
     """Retrieve the librarian for a given library"""
-    return Librarian.objects.get(library__name=library_name)
+    library = Library.objects.get(name=library_name)
+    return Librarian.objects.get(library=library)   # ✅ required pattern
