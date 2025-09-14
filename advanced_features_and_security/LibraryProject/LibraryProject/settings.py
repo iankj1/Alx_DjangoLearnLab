@@ -27,6 +27,25 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False   # ✅ must be False in production
+
+ALLOWED_HOSTS = ['*']  # Replace '*' with your domain(s) in production
+
+# Browser Security Settings
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = "DENY"
+
+# Cookies security (requires HTTPS in production)
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+# Content Security Policy (Step 4, via middleware)
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", 'fonts.googleapis.com')
+CSP_SCRIPT_SRC = ("'self'", 'cdn.jsdelivr.net')
+
 
 # Application definition
 
@@ -43,6 +62,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'csp.middleware.CSPMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
