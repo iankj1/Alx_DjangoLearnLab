@@ -63,6 +63,9 @@ X_FRAME_OPTIONS = "DENY"  # Prevent clickjacking
 SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME type sniffing
 SECURE_BROWSER_XSS_FILTER = True  # Enable XSS filter in browsers
 
+# Trust X-Forwarded-Proto header from proxy (e.g., Nginx) to detect HTTPS
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 # Application definition
 
 INSTALLED_APPS = [
