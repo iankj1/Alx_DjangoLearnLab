@@ -1,15 +1,18 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework.authtoken.views import obtain_auth_token
 from .views import BookList, BookViewSet
 
-# Set up router
 router = DefaultRouter()
 router.register(r'books_all', BookViewSet, basename='book_all')
 
 urlpatterns = [
-    # Original ListAPIView route
+    # Book list (read-only)
     path('books/', BookList.as_view(), name='book-list'),
 
-    # Router-generated CRUD routes
+    # Auth token endpoint
+    path('auth/token/', obtain_auth_token, name='api_token_auth'),
+
+    # ViewSet CRUD endpoints
     path('', include(router.urls)),
 ]
