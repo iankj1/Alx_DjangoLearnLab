@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>30-Day Health Tracking Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: white;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .chapter-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0 10px 0;
+            text-align: right;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            font-size: 10px;
+        }
+        th, td {
+            border: 1px solid #000;
+            text-align: center;
+            padding: 3px 2px;
+            height: 20px;
+        }
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        .protocol-label {
+            text-align: left;
+            padding-left: 5px;
+            width: 120px;
+            font-size: 9px;
+        }
+        .day-header {
+            width: 25px;
+            font-size: 8px;
+        }
+        .sleep-row {
+            height: 25px;
+        }
+        .mood-section {
+            margin-top: 20px;
+        }
+        .mood-table td {
+            height: 30px;
+        }
+        .motivational-text {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #333;
+        }
+        .total-points {
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+        @media print {
+            body { margin: 10px; }
+            table { font-size: 9px; }
+            .chapter-title { font-size: 16px; }
+            .download-buttons { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        function downloadAsWord() {
+            try {
+                // Create clean HTML content for Word
+                const blob = new Blob([wordHTML], { type: 'application/msword' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = '30-Day-Health-Tracker.doc';
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                alert('✅ Word document downloaded successfully! Open it in Microsoft Word.');
+            } catch (error) {
+                console.error('Download error:', error);
+                alert('❌ Download failed. Please try the Print/PDF option instead.');
+            }
+        }
+        
+        function downloadAsPDF() {
+            alert('📋 Click OK, then use your browser\'s print dialog to save as PDF by selecting "Save as PDF" as the destination.');
+            setTimeout(() => {
+                window.print();
+            }, 1000);
+        }
+        
+        function printDocument() {
+            window.print();
+        }
+    </script>
+    <div class="header">
+        <h1>30-Day Health Tracking Dashboard</h1>
+        <div class="chapter-title">This current chapter is called: "My Turn"</div>
+        
+        <!-- Download Buttons -->
+        <div style="margin: 20px 0; text-align: center;">
+            <button onclick="downloadAsWord()" style="background: #0066cc; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin: 0 10px; cursor: pointer; font-size: 14px;">
+                📄 Download as Word Document
+            </button>
+            <button onclick="downloadAsPDF()" style="background: #cc0000; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin: 0 10px; cursor: pointer; font-size: 14px;">
+                📋 Download as PDF
+            </button>
+            <button onclick="printDocument()" style="background: #009900; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin: 0 10px; cursor: pointer; font-size: 14px;">
+                🖨️ Print Document
+            </button>
+        </div>
+    </div>
+
+    <div class="motivational-text">The plan.</div>
+
+    <!-- Protocols Table -->
+    <table>
+        <thead>
+            <tr>
+                <th class="protocol-label">Protocols</th>
+                <th class="day-header">01</th>
+                <th class="day-header">02</th>
+                <th class="day-header">03</th>
+                <th class="day-header">04</th>
+                <th class="day-header">05</th>
+                <th class="day-header">06</th>
+                <th class="day-header">07</th>
+                <th class="day-header">08</th>
+                <th class="day-header">09</th>
+                <th class="day-header">10</th>
+                <th class="day-header">11</th>
+                <th class="day-header">12</th>
+                <th class="day-header">13</th>
+                <th class="day-header">14</th>
+                <th class="day-header">15</th>
+                <th class="day-header">16</th>
+                <th class="day-header">17</th>
+                <th class="day-header">18</th>
+                <th class="day-header">19</th>
+                <th class="day-header">20</th>
+                <th class="day-header">21</th>
+                <th class="day-header">22</th>
+                <th class="day-header">23</th>
+                <th class="day-header">24</th>
+                <th class="day-header">25</th>
+                <th class="day-header">26</th>
+                <th class="day-header">27</th>
+                <th class="day-header">28</th>
+                <th class="day-header">29</th>
+                <th class="day-header">30</th>
+                <th class="day-header">31</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="protocol-label">1. No Junk Food</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td class="protocol-label">2. Drink 6-8 hours of water + 30 mins Morning</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td class="protocol-label">3. Gym before 11:30pm</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td class="protocol-label">4. Check in Every Hour</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td class="protocol-label">5. Least 2 hours of Deep Learning</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td class="protocol-label">6. Reading Hours</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td class="protocol-label">7. 30 mins of Meditation</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td class="protocol-label">8. No Social Media</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td class="protocol-label">9. Writing Journal</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+                <td class="protocol-label">10. 2-3 of cold water</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="total-points">
+                <td class="protocol-label"><strong>Total points /10</strong></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Sleep Tracking Table -->
+    <table>
+        <thead>
+            <tr>
+                <th class="protocol-label">Sleep</th>
+                <th class="day-header">01</th>
+                <th class="day-header">02</th>
+                <th class="day-header">03</th>
+                <th class="day-header">04</th>
+                <th class="day-header">05</th>
+                <th class="day-header">06</th>
+                <th class="day-header">07</th>
+                <th class="day-header">08</th>
+                <th class="day-header">09</th>
+                <th class="day-header">10</th>
+                <th class="day-header">11</th>
+                <th class="day-header">12</th>
+                <th class="day-header">13</th>
+                <th class="day-header">14</th>
+                <th class="day-header">15</th>
+                <th class="day-header">16</th>
+                <th class="day-header">17</th>
+                <th class="day-header">18</th>
+                <th class="day-header">19</th>
+                <th class="day-header">20</th>
+                <th class="day-header">21</th>
+                <th class="day-header">22</th>
+                <th class="day-header">23</th>
+                <th class="day-header">24</th>
+                <th class="day-header">25</th>
+                <th class="day-header">26</th>
+                <th class="day-header">27</th>
+                <th class="day-header">28</th>
+                <th class="day-header">29</th>
+                <th class="day-header">30</th>
+                <th class="day-header">31</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="sleep-row">
+                <td class="protocol-label">8 hrs +</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="sleep-row">
+                <td class="protocol-label">7 hrs</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="sleep-row">
+                <td class="protocol-label">6hrs</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="sleep-row">
+                <td class="protocol-label">5hrs</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="sleep-row">
+                <td class="protocol-label">4 hrs</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="sleep-row">
+                <td class="protocol-label">3 hrs</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr class="sleep-row">
+                <td class="protocol-label">3 hrs -</td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Mood Tracking Table -->
+    <div class="mood-section">
+        <table class="mood-table">
+            <thead>
+                <tr>
+                    <th class="protocol-label">Mood</th>
+                    <th class="day-header">01</th>
+                    <th class="day-header">02</th>
+                    <th class="day-header">03</th>
+                    <th class="day-header">04</th>
+                    <th class="day-header">05</th>
+                    <th class="day-header">06</th>
+                    <th class="day-header">07</th>
+                    <th class="day-header">08</th>
+                    <th class="day-header">09</th>
+                    <th class="day-header">10</th>
+                    <th class="day-header">11</th>
+                    <th class="day-header">12</th>
+                    <th class="day-header">13</th>
+                    <th class="day-header">14</th>
+                    <th class="day-header">15</th>
+                    <th class="day-header">16</th>
+                    <th class="day-header">17</th>
+                    <th class="day-header">18</th>
+                    <th class="day-header">19</th>
+                    <th class="day-header">20</th>
+                    <th class="day-header">21</th>
+                    <th class="day-header">22</th>
+                    <th class="day-header">23</th>
+                    <th class="day-header">24</th>
+                    <th class="day-header">25</th>
+                    <th class="day-header">26</th>
+                    <th class="day-header">27</th>
+                    <th class="day-header">28</th>
+                    <th class="day-header">29</th>
+                    <th class="day-header">30</th>
+                    <th class="day-header">31</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="protocol-label">😊 😐 😔 🥱 😴 😤 😍</td>
+                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="motivational-text">Remember who you are.</div>
+
+    <div style="margin-top: 50px; font-size: 12px; text-align: center; color: #666;">
+        <p><strong>Instructions:</strong></p>
+        <p>✓ Mark each completed protocol with a checkmark or dot</p>
+        <p>• Circle or mark your sleep hours for each day</p>
+        <p>• Draw or write your mood emoji for each day</p>
+        <p>• Calculate daily total points out of 10</p>
+    </div>
+</body>
+</html>
