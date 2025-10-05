@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile
+from .models import post
 
 class UserRegisterForm(UserCreationForm):
     """
@@ -32,3 +33,16 @@ class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['bio', 'avatar']
+
+class PostForm(forms.ModelForm):
+    """
+    ModelForm for Post. We do not include author field in the form:
+    author is set automatically from request.user in the view.
+    """
+    class Meta:
+        model = Post
+        fields = ['title', 'content']
+        widgets = {
+            'title': forms.TextInput(attrs={'placeholder': 'Post title'}),
+            'content': forms.Textarea(attrs={'rows': 10, 'placeholder': 'Write your content here...'}),
+        }
