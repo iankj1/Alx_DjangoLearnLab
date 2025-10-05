@@ -35,6 +35,9 @@ class Post(models.Model):
     class Meta:
         ordering = ['-created_at']
 
+    #Add tagging
+     tags = TaggableManager()
+
     def __str__(self):
         return self.title
 
