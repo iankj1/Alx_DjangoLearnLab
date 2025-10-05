@@ -1,0 +1,17 @@
+{# blog/templates/blog/comment_form.html #}
+{% extends "base.html" %}
+{% block content %}
+  {% if form.instance.pk %}
+    <h2>Edit comment</h2>
+  {% else %}
+    <h2>New comment for "{{ post.title }}"</h2>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save</button>
+  </form>
+
+  <p><a href="{% url 'post-detail' post.pk %}">Back to post</a></p>
+{% endblock %}
