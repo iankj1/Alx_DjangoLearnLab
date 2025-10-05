@@ -46,3 +46,26 @@ class PostForm(forms.ModelForm):
             'title': forms.TextInput(attrs={'placeholder': 'Post title'}),
             'content': forms.Textarea(attrs={'rows': 10, 'placeholder': 'Write your content here...'}),
         }
+
+from django import forms
+from .models import Comment
+
+class CommentForm(forms.ModelForm):
+    """
+    Simple ModelForm for comments. The 'content' field is required,
+    and we strip whitespace in clean_content.
+    """
+    class Meta:
+        model = Comment
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Add a public comment...'}),
+        }
+
+    def clean_content(self):
+        content = self.cleaned_data.get('content', '').strip()
+        if not content:
+            raise forms.ValidationError("Comment cannot be empty.")
+        if len(content) > 2000:
+            raise forms.ValidationError("Comment is too long (max 2000 characters).")
+        return content
