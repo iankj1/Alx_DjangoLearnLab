@@ -20,4 +20,7 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('profile/', views.profile_view, name='profile'),
+
+      # tag & search
+    path('tags/<str:tag_name>/', views.PostsByTagView.as_view(), name='posts-by-tag'),
 ]
