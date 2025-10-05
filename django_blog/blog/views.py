@@ -13,6 +13,7 @@ from .forms import CommentForm
 from django.db.models import Q
 from .models import Post, Tag
 from .forms import PostForm
+from .models import Post
 
 def register_view(request):
     if request.method == 'POST':
@@ -254,3 +255,17 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
                 tag_obj.save()
             tags_objs.append(tag_obj)
         post.tags.set(tags_objs)
+
+    def search_view(request):
+        query = request.GET.get('q', '')
+        results = Post.objects.all()
+    
+        if query:
+            results = Post.objects.filter(
+                Q(title__icontains=query) | 
+                Q(content__icontains=query) | 
+                Q(tags__name__icontains=query)
+            ).distinct()
+    
+        return render(request, 'blog/search_results.html', {'results': results, 'query': query})
+    
