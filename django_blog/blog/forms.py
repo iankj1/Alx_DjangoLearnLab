@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile
 from .models import post
+from .models import Comment
 
 class UserRegisterForm(UserCreationForm):
     """
@@ -47,8 +48,6 @@ class PostForm(forms.ModelForm):
             'content': forms.Textarea(attrs={'rows': 10, 'placeholder': 'Write your content here...'}),
         }
 
-from django import forms
-from .models import Comment
 
 class CommentForm(forms.ModelForm):
     """
@@ -69,3 +68,21 @@ class CommentForm(forms.ModelForm):
         if len(content) > 2000:
             raise forms.ValidationError("Comment is too long (max 2000 characters).")
         return content
+
+class PostForm(forms.ModelForm):
+    tags = forms.CharField(
+        required=False,
+        help_text='Comma-separated tags (e.g. django, python)',
+        widget=forms.TextInput(attrs={'placeholder': 'tag1, tag2'})
+    )
+
+    class Meta:
+        model = Post
+        fields = ['title', 'content', 'tags']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # if editing existing post, show current tags as CSV
+        if self.instance and self.instance.pk:
+            self.fields['tags'].initial = ', '.join([t.name for t in self.instance.tags.all()])
+
