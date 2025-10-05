@@ -86,6 +86,13 @@ DATABASES = {
     }
 }
 
+# where to redirect after login/logout
+LOGIN_REDIRECT_URL = 'home'   # or 'profile'
+LOGOUT_REDIRECT_URL = 'home'
+
+# If you added ImageField 'avatar', configure media:
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # Password validation
