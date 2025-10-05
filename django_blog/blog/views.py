@@ -10,7 +10,9 @@ from django.views.generic import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from .models import Post, Comment
 from .forms import CommentForm
-
+from django.db.models import Q
+from .models import Post, Tag
+from .forms import PostForm
 
 def register_view(request):
     if request.method == 'POST':
@@ -152,3 +154,103 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def get_success_url(self):
         return self.object.post.get_absolute_url()
+
+class PostListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+    def get_queryset(self):
+        qs = super().get_queryset().select_related('author').prefetch_related('tags')
+        q = self.request.GET.get('q', '').strip()
+        tag = self.request.GET.get('tag', '').strip()
+        if q:
+            qs = qs.filter(
+                Q(title__icontains=q) |
+                Q(content__icontains=q) |
+                Q(tags__name__icontains=q)
+            ).distinct()
+        if tag:
+            # allow tag slug or name
+            qs = qs.filter(tags__slug=tag) | qs.filter(tags__name__iexact=tag)
+            qs = qs.distinct()
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['q'] = self.request.GET.get('q', '')
+        ctx['tag_param'] = self.request.GET.get('tag', '')
+        return ctx
+
+
+class TagPostListView(PostListView):
+    """
+    ListView for posts filtered by tag slug in URL.
+    """
+    def get_queryset(self):
+        slug = self.kwargs.get('slug')
+        tag = get_object_or_404(Tag, slug=slug)
+        qs = super().get_queryset().filter(tags=tag)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['current_tag'] = get_object_or_404(Tag, slug=self.kwargs.get('slug'))
+        return ctx
+
+
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/post_form.html'
+    login_url = 'login'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        response = super().form_valid(form)  # saves instance
+        tags_csv = form.cleaned_data.get('tags', '')
+        self._assign_tags_to_post(self.object, tags_csv)
+        return response
+
+    def _assign_tags_to_post(self, post, tags_csv):
+        tag_names = [t.strip() for t in tags_csv.split(',') if t.strip()]
+        tags_objs = []
+        from .models import Tag
+        for name in tag_names:
+            tag_obj, _ = Tag.objects.get_or_create(name__iexact=name, defaults={'name': name})
+            # ensure slug creation
+            if tag_obj.name != name:
+                tag_obj.name = name
+                tag_obj.save()
+            tags_objs.append(tag_obj)
+        post.tags.set(tags_objs)
+
+
+class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/post_form.html'
+    login_url = 'login'
+
+    def test_func(self):
+        post = self.get_object()
+        return post.author == self.request.user
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        tags_csv = form.cleaned_data.get('tags', '')
+        self._assign_tags_to_post(self.object, tags_csv)
+        return response
+
+    def _assign_tags_to_post(self, post, tags_csv):
+        tag_names = [t.strip() for t in tags_csv.split(',') if t.strip()]
+        tags_objs = []
+        from .models import Tag
+        for name in tag_names:
+            tag_obj, _ = Tag.objects.get_or_create(name__iexact=name, defaults={'name': name})
+            if tag_obj.name != name:
+                tag_obj.name = name
+                tag_obj.save()
+            tags_objs.append(tag_obj)
+        post.tags.set(tags_objs)
