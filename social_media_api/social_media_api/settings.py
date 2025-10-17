@@ -40,7 +40,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'accounts',
     'rest_framework.authtoken',
+<<<<<<< HEAD
     
+=======
+    'posts',
+>>>>>>> 0cd4e5de81ff00ea5b24f74771138d19ffb09fee
 ]
 
 
@@ -48,12 +52,20 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = "accounts.User"
 
 # DRF token authentication default (optional but helpful)
+]
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+    "DEFAULT_FILTER_BACKENDS": [
+        "rest_framework.filters.SearchFilter",
+        "rest_framework.filters.OrderingFilter",
     ],
 }
 

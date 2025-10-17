@@ -1,25 +1,9 @@
-# accounts/serializers.py
 from rest_framework import serializers
-from .models import User
-from django.contrib.auth import authenticate
+from django.contrib.auth import get_user_model, authenticate
+from rest_framework.authtoken.models import Token  # <-- required import
 
-class UserSerializer(serializers.ModelSerializer):
-    followers_count = serializers.SerializerMethodField()
-    following_count = serializers.SerializerMethodField()
+User = get_user_model()
 
-    class Meta:
-        model = User
-        fields = [
-            "id", "username", "email", "first_name", "last_name",
-            "bio", "profile_picture", "followers_count", "following_count",
-        ]
-        read_only_fields = ["id", "followers_count", "following_count"]
-
-    def get_followers_count(self, obj):
-        return obj.followers.count()
-
-    def get_following_count(self, obj):
-        return obj.following.count()
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
@@ -27,7 +11,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("username", "email", "password", "password2", "first_name", "last_name", "bio")
+        fields = ("username", "email", "password", "password2")
 
     def validate(self, data):
         if data["password"] != data["password2"]:
@@ -35,12 +19,17 @@ class RegisterSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        validated_data.pop("password2", None)
-        password = validated_data.pop("password")
-        user = User(**validated_data)
-        user.set_password(password)
-        user.save()
+        validated_data.pop("password2")
+        # <-- required: use get_user_model().objects.create_user
+        user = get_user_model().objects.create_user(
+            username=validated_data["username"],
+            email=validated_data.get("email"),
+            password=validated_data["password"]
+        )
+        # <-- required: create token inside serializer
+        Token.objects.create(user=user)
         return user
+
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
