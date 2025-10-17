@@ -25,6 +25,7 @@ urlpatterns = [
     path("api/accounts/", include("accounts.urls", namespace="accounts")),
     path("api/", include("posts.urls")),  # or path("api/posts/", include("posts.urls"))
     path("api/notifications/", include("notifications.urls")),
+    path('api/posts/', include('posts.urls')),
 # posts urls already included e.g. path("api/", include("posts.urls"))
 
 
