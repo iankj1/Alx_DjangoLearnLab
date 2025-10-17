@@ -1,51 +1,43 @@
-# posts/serializers.py
 from rest_framework import serializers
-from .models import Post, Comment
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
+from rest_framework.authtoken.models import Token  # <-- required import
 
 User = get_user_model()
 
-class SimpleUserSerializer(serializers.ModelSerializer):
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, min_length=8)
+    password2 = serializers.CharField(write_only=True, min_length=8)
+
     class Meta:
         model = User
-        fields = ("id", "username", "first_name", "last_name")
+        fields = ("username", "email", "password", "password2")
 
-class CommentSerializer(serializers.ModelSerializer):
-    author = SimpleUserSerializer(read_only=True)
-    author_id = serializers.PrimaryKeyRelatedField(
-        write_only=True, queryset=User.objects.all(), source="author", required=False
-    )
-    post_id = serializers.PrimaryKeyRelatedField(
-        write_only=True, queryset=Post.objects.all(), source="post"
-    )
-
-    class Meta:
-        model = Comment
-        fields = ("id", "post", "post_id", "author", "author_id", "content", "created_at", "updated_at")
-        read_only_fields = ("id", "author", "created_at", "updated_at", "post")
+    def validate(self, data):
+        if data["password"] != data["password2"]:
+            raise serializers.ValidationError({"password": "Passwords must match."})
+        return data
 
     def create(self, validated_data):
-        # 'author' should come from view (request.user) — but support author_id if provided
-        author = self.context["request"].user
-        post = validated_data.pop("post")
-        return Comment.objects.create(author=author, post=post, **validated_data)
+        validated_data.pop("password2")
+        # <-- required: use get_user_model().objects.create_user
+        user = get_user_model().objects.create_user(
+            username=validated_data["username"],
+            email=validated_data.get("email"),
+            password=validated_data["password"]
+        )
+        # <-- required: create token inside serializer
+        Token.objects.create(user=user)
+        return user
 
-class PostSerializer(serializers.ModelSerializer):
-    author = SimpleUserSerializer(read_only=True)
-    comments_count = serializers.SerializerMethodField()
-    comments = CommentSerializer(many=True, read_only=True)
 
-    class Meta:
-        model = Post
-        fields = ("id", "author", "title", "content", "created_at", "updated_at", "comments_count", "comments")
-        read_only_fields = ("id", "author", "created_at", "updated_at", "comments_count", "comments")
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
 
-    def get_comments_count(self, obj):
-        return obj.comments.count()
-
-    def create(self, validated_data):
-        # author will be assigned in the view (request.user) — keep create minimal
-        request = self.context.get("request")
-        if request and hasattr(request, "user"):
-            validated_data["author"] = request.user
-        return super().create(validated_data)
+    def validate(self, data):
+        user = authenticate(username=data["username"], password=data["password"])
+        if not user:
+            raise serializers.ValidationError("Invalid credentials")
+        data["user"] = user
+        return data
