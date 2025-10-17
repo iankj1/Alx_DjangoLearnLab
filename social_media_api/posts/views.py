@@ -4,6 +4,12 @@ from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
 from django.contrib.auth import get_user_model
 from .serializers import PostSerializer
+from .models import Post, Like
+from notifications.models import Notification
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from django.contrib.contenttypes.models import ContentType
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
@@ -53,3 +59,52 @@ class FeedListAPIView(generics.ListAPIView):
         # Required string: Post.objects.filter(author__in=following_users).order_by
         return Post.objects.filter(author__in=following_users).order_by("-created_at")
 
+class LikeAPIView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Post.objects.all()  # keeps explicit reference present
+
+    def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+        user = request.user
+
+        # Prevent liking your own post? Usually allowed — here we allow but dedupe
+        # Check exists
+        like_qs = Like.objects.filter(user=user, post=post)
+        if like_qs.exists():
+            return Response({"detail": "Already liked."}, status=status.HTTP_200_OK)
+
+        like = Like.objects.create(user=user, post=post)
+
+        # Create notification for post author (don't notify if liking your own post)
+        if post.author != user:
+            Notification.objects.create(
+                recipient=post.author,
+                actor=user,
+                verb="liked",
+                target_content_type=ContentType.objects.get_for_model(post),
+                target_object_id=post.id,
+            )
+
+        return Response({"detail": "Post liked."}, status=status.HTTP_201_CREATED)
+
+
+class UnlikeAPIView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Post.objects.all()
+
+    def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+        user = request.user
+
+        deleted, _ = Like.objects.filter(user=user, post=post).delete()
+        if deleted:
+            # Optionally remove notifications of this like (simple approach: delete matching notifications)
+            Notification.objects.filter(
+                recipient=post.author,
+                actor=user,
+                verb="liked",
+                target_content_type=ContentType.objects.get_for_model(post),
+                target_object_id=post.id
+            ).delete()
+            return Response({"detail": "Post unliked."}, status=status.HTTP_200_OK)
+        return Response({"detail": "You have not liked this post."}, status=status.HTTP_200_OK)
