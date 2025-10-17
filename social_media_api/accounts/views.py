@@ -1,62 +1,38 @@
 # accounts/views.py
-from rest_framework import generics, status, permissions
-from rest_framework.response import Response
+from rest_framework import status, permissions
 from rest_framework.views import APIView
-from rest_framework.authtoken.models import Token
-from .models import User
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer
+from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
 
-class RegisterAPIView(generics.CreateAPIView):
-    serializer_class = RegisterSerializer
-    permission_classes = [permissions.AllowAny]
+User = get_user_model()
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        token, _ = Token.objects.get_or_create(user=user)
-        user_data = UserSerializer(user, context={"request": request}).data
-        return Response({"token": token.key, "user": user_data}, status=status.HTTP_201_CREATED)
-
-class LoginAPIView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    def post(self, request):
-        serializer = LoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data["user"]
-        token, _ = Token.objects.get_or_create(user=user)
-        data = {
-            "token": token.key,
-            "user": UserSerializer(user, context={"request": request}).data,
-        }
-        return Response(data, status=status.HTTP_200_OK)
-
-class ProfileRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    lookup_field = "username"  # profile accessible by /profile/<username>/
-
-    def get_object(self):
-        username = self.kwargs.get("username")
-        return get_object_or_404(User, username=username)
-
-class FollowToggleAPIView(APIView):
+class FollowUserAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, username):
-        target = get_object_or_404(User, username=username)
+    def post(self, request, user_id):
+        target = get_object_or_404(User, id=user_id)
         user = request.user
-        if user == target:
-            return Response({"detail": "You cannot follow yourself."}, status=400)
+        if target == user:
+            return Response({"detail": "You cannot follow yourself."}, status=status.HTTP_400_BAD_REQUEST)
 
-        if user in target.followers.all():
-            target.followers.remove(user)
-            action = "unfollowed"
-        else:
-            target.followers.add(user)
-            action = "followed"
+        if target in user.following.all():
+            return Response({"detail": f"Already following {target.username}."}, status=status.HTTP_200_OK)
 
-        return Response({"detail": f"{action} {target.username}."}, status=200)
+        user.following.add(target)
+        return Response({"detail": f"Now following {target.username}."}, status=status.HTTP_200_OK)
+
+class UnfollowUserAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, user_id):
+        target = get_object_or_404(User, id=user_id)
+        user = request.user
+        if target == user:
+            return Response({"detail": "You cannot unfollow yourself."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if target not in user.following.all():
+            return Response({"detail": f"Not following {target.username}."}, status=status.HTTP_200_OK)
+
+        user.following.remove(target)
+        return Response({"detail": f"Unfollowed {target.username}."}, status=status.HTTP_200_OK)
