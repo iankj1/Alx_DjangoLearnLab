@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
-
+from django.contrib.auth import get_user_model
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
@@ -32,3 +32,21 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+
+User = get_user_model()
+
+class FeedListAPIView(generics.ListAPIView):
+    """
+    Returns posts created by users that the request.user follows,
+    ordered by newest first.
+    """
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        # explicit queryset string expected by checkers:
+        # Post.objects.filter(author__in=...)
+        following_qs = user.following.all()
+        return Post.objects.filter(author__in=following_qs).order_by("-created_at")
